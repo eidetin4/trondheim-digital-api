@@ -25,7 +25,7 @@ This project is a Scala 3 based API for serving student grades by subject.
    ```
 4. Clone the repository:
 ```bash
-   git clone https://github.com/eidetin4/trondheim-digital-api
+   git clone https://github.com/eidetin4/trondheim-digital-api.git
 ```
 Or download the zip file from the repository and extract it.
 5. Navigate to the project directory:
