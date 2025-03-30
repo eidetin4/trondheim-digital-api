@@ -19,7 +19,7 @@ class StudentSubjectServiceSpec extends AsyncFlatSpec with Matchers:
         case _ => NotFound()
       }.orNotFound
     )
-    
+
     val service = new StudentSubjectService(testClient)
 
     service.getStudents.unsafeRunSync() shouldBe a[StudentSubjectContracts.Students]
@@ -38,7 +38,7 @@ class StudentSubjectServiceSpec extends AsyncFlatSpec with Matchers:
 
     service.getStudents.attempt.unsafeRunSync() shouldBe a[Left[_, _]]
   }
-  
+
   it should "handle HTTP errors" in {
     val errorClient = Client.fromHttpApp[IO](
       HttpRoutes.of[IO] {

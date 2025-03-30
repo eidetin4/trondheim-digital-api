@@ -1,6 +1,7 @@
 package services
 
 import cats.effect.IO
+import cats.effect.std.Env
 import contracts.StudentSubjectContracts.{Students, Subjects}
 import io.circe.Error as CirceError
 import org.http4s.circe.jsonOf
@@ -13,48 +14,56 @@ import java.util.Base64
 class StudentSubjectService(client: Client[IO]):
 
   private val baseUrl = "https://recruit-task.tipcloudqa.trondheim.kommune.no"
-  private val username = "test"
-  private val password = "91bs4mGa3pNL"
-  
-  private def createAuthHeaders(): Headers = {
-    val authString = s"$username:$password"
-    val encodedAuth = Base64.getEncoder.encodeToString(authString.getBytes)
 
-    Headers(
-      Header.Raw(CIString("Authorization"), s"Basic $encodedAuth")
-    )
+  private def createAuthHeaders(): IO[Headers] = (
+    Env[IO].get("STUDENT_API_USERNAME"),
+    Env[IO].get("STUDENT_API_PASSWORD")
+  ).parMapN {
+    case (Some(username), Some(password)) => {
+      val authString = s"$username:$password"
+      val encodedAuth = Base64.getEncoder.encodeToString(authString.getBytes)
+
+      Headers(
+        Header.Raw(CIString("Authorization"), s"Basic $encodedAuth")
+      )
+    }
+    case _ => {
+      Headers.empty
+    }
   }
   
   def getStudents: IO[Students] = {
     val uriAttempt = Uri.fromString(s"$baseUrl/v2/students")
 
-    uriAttempt match
-      case Right(uri) => 
+    uriAttempt.fold(
+      e => IO.raiseError(ParseUriException(s"Failed to parse students URI: ${e.message}")),
+      uri => createAuthHeaders().flatMap { headers =>
         val request = Request[IO](
           method = Method.GET,
           uri = uri,
-          headers = createAuthHeaders()
+          headers = headers
         )
-        
+
         handleHttpErrors(client.expect[Students](request)(jsonOf[IO, Students]))
-      case Left(parseFailure) =>
-        IO.raiseError(ParseUriException(s"Failed to parse students URI: ${parseFailure.message}"))
+      }
+    )
   }
   
   def getSubjects: IO[Subjects] = {
     val uriAttempt = Uri.fromString(s"$baseUrl/v2/subjects")
 
-    uriAttempt match
-      case Right(uri) =>
+    uriAttempt.fold(
+      e => IO.raiseError(ParseUriException(s"Failed to parse subjects URI: ${e.message}")),
+      uri => createAuthHeaders().flatMap { headers =>
         val request = Request[IO](
           method = Method.GET,
           uri = uri,
-          headers = createAuthHeaders()
+          headers = headers
         )
-        
+
         handleHttpErrors(client.expect[Subjects](request)(jsonOf[IO, Subjects]))
-      case Left(parseFailure) =>
-        IO.raiseError(ParseUriException(s"Failed to parse subjects URI: ${parseFailure.message}"))
+      }
+    )
   }
 
   private def handleHttpErrors[A](io: IO[A]): IO[A] = {

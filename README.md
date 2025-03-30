@@ -32,13 +32,36 @@ Or download the zip file from the repository and extract it.
 ```bash
    cd trondheim-digital-api
 ```
-6. Run the application
+6. Set environment variables:
+
+The ones provided in the task set.
+- Linux:
+```bash
+   vi ~/.bashrc
+```
+Add the variables:
+```bash
+   export STUDENT_API_USERNAME="your username"
+   export STUDENT_API_PASSWORD="your password"
+```
+Save and reload the bashrc file:
+```bash
+   source ~/.bashrc
+```
+
+- Windows:
+  - Press Windows + R, type sysdm.cpl, and press Enter. 
+  - Go to the "Advanced" tab and click "Environment Variables."
+  - Under "User variables" or "System variables," click "New."
+  - Enter the variable name and value, then click OK.
+
+7. Run the application
 ```bash
    sbt run
 ```
 The server will start on `localhost:8080`.
 
-7. Test the API
+8. Test the API
 
 Linux/Mac:
 ```bash
@@ -49,6 +72,7 @@ Powershell:
    Invoke-RestMethod -Uri http://localhost:8080/students?subjectCode=ARB0008
 ```
 Or use Postman or any other API testing tool to send a GET request to `http://localhost:8080/students?subjectCode=ARB0008`.
+
 ## Api endpoints
 - GET `/students?subjectCode=ARB0008`
   - Returns a list of students with their grades for the specified subject code.
