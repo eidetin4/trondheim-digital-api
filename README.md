@@ -37,6 +37,7 @@ Or download the zip file from the repository and extract it.
    sbt run
 ```
 The server will start on `localhost:8080`.
+
 7. Test the API
 
 Linux/Mac:
